@@ -1,0 +1,30 @@
+name: Generate SEO Posts
+on:
+schedule:
+- cron: "0 15 * * 1" # Mondays 15:00 UTC (10:00 CT)
+workflow_dispatch: {}
+
+
+jobs:
+build:
+runs-on: ubuntu-latest
+steps:
+- uses: actions/checkout@v4
+- name: Set up Python
+uses: actions/setup-python@v5
+with:
+python-version: '3.11'
+- name: Generate posts
+working-directory: content-bot
+env:
+OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+SITE_BRAND: Crypto Poker Guide
+run: |
+python3 generate_post.py
+- name: Commit & push
+run: |
+git config user.name "seo-bot"
+git config user.email "seo-bot@example.com"
+git add posts/*.md || true
+git commit -m "chore(posts): weekly drip" || echo "nothing to commit"
+git push
